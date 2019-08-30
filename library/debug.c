@@ -25,6 +25,9 @@
 #include MBEDTLS_CONFIG_FILE
 #endif
 
+#include <assert.h>
+#include <stdio.h>
+
 #if defined(MBEDTLS_DEBUG_C)
 
 #if defined(MBEDTLS_PLATFORM_C)
@@ -55,6 +58,8 @@ static int debug_threshold = 0;
 
 void mbedtls_debug_set_threshold( int threshold )
 {
+    printf("-----------MBED-TLS : Setting debug-threshold to %d\n", threshold);
+    fflush(stdout);
     debug_threshold = threshold;
 }
 
@@ -95,10 +100,12 @@ void mbedtls_debug_print_msg( const mbedtls_ssl_context *ssl, int level,
         return;
     }
 
+    int num_printed = sprintf(str, "ssl: %p -> ", ssl);
     va_start( argp, format );
-    ret = mbedtls_vsnprintf( str, DEBUG_BUF_SIZE, format, argp );
+    ret = num_printed + mbedtls_vsnprintf( str + num_printed, DEBUG_BUF_SIZE, format, argp );
     va_end( argp );
 
+    assert(ret < DEBUG_BUF_SIZE - 2);
     if( ret >= 0 && ret < DEBUG_BUF_SIZE - 1 )
     {
         str[ret]     = '\n';

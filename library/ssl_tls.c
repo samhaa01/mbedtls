@@ -2344,6 +2344,7 @@ int mbedtls_ssl_encrypt_buf( mbedtls_ssl_context *ssl,
     unsigned char add_data[13 + 1 + MBEDTLS_SSL_CID_OUT_LEN_MAX ];
     size_t add_data_len;
     size_t post_avail;
+    MBEDTLS_SSL_DEBUG_MSG( 1, ( "mbedtls_ssl_encrypt_buf rec->buf=0x%p rec->buf_len=%zu", rec->buf, rec->buf_len ) );
 
     /* The SSL context is only used for debugging purposes! */
 #if !defined(MBEDTLS_DEBUG_C)
@@ -2441,7 +2442,7 @@ int mbedtls_ssl_encrypt_buf( mbedtls_ssl_context *ssl,
     {
         if( post_avail < transform->maclen )
         {
-            MBEDTLS_SSL_DEBUG_MSG( 1, ( "Buffer provided for encrypted record not large enough" ) );
+            MBEDTLS_SSL_DEBUG_MSG( 1, ( "Buffer provided for encrypted record not large enough 1" ) );
             return( MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL );
         }
 
@@ -2531,10 +2532,19 @@ int mbedtls_ssl_encrypt_buf( mbedtls_ssl_context *ssl,
 
         /* Check that there's space for both the authentication tag
          * and the explicit IV before and after the record content. */
+        MBEDTLS_SSL_DEBUG_MSG( 1, ( "Checking buffer size: post_avail=%d, " 
+                                    "transform->taglen=%d, rec->data_len=%d, rec->data_offset=%d, explicit_iv_len=%d, "
+                                    " transform->maclen=%d transform->fixed_ivlen=%d", 
+                                    post_avail, transform->taglen, rec->data_len, rec->data_offset, explicit_iv_len, 
+                                    transform->maclen, transform->fixed_ivlen) );
         if( post_avail < transform->taglen ||
             rec->data_offset < explicit_iv_len )
         {
-            MBEDTLS_SSL_DEBUG_MSG( 1, ( "Buffer provided for encrypted record not large enough" ) );
+            MBEDTLS_SSL_DEBUG_MSG( 1, ( "Buffer provided for encrypted record not large enough 2: post_avail=%d, " 
+                                        "transform->taglen=%d, rec->data_len=%d, rec->data_offset=%d, explicit_iv_len=%d, "
+                                        " transform->maclen=%d transform->fixed_ivlen=%d", 
+                                        post_avail, transform->taglen, rec->data_len, rec->data_offset, explicit_iv_len, 
+                                        transform->maclen, transform->fixed_ivlen) );
             return( MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL );
         }
 
@@ -2621,7 +2631,7 @@ int mbedtls_ssl_encrypt_buf( mbedtls_ssl_context *ssl,
         /* Check there's enough space in the buffer for the padding. */
         if( post_avail < padlen + 1 )
         {
-            MBEDTLS_SSL_DEBUG_MSG( 1, ( "Buffer provided for encrypted record not large enough" ) );
+            MBEDTLS_SSL_DEBUG_MSG( 1, ( "Buffer provided for encrypted record not large enough 3" ) );
             return( MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL );
         }
 
@@ -2646,7 +2656,7 @@ int mbedtls_ssl_encrypt_buf( mbedtls_ssl_context *ssl,
 
             if( rec->data_offset < transform->ivlen )
             {
-                MBEDTLS_SSL_DEBUG_MSG( 1, ( "Buffer provided for encrypted record not large enough" ) );
+                MBEDTLS_SSL_DEBUG_MSG( 1, ( "Buffer provided for encrypted record not large enough 4" ) );
                 return( MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL );
             }
 
@@ -2717,7 +2727,7 @@ int mbedtls_ssl_encrypt_buf( mbedtls_ssl_context *ssl,
 
             if( post_avail < transform->maclen)
             {
-                MBEDTLS_SSL_DEBUG_MSG( 1, ( "Buffer provided for encrypted record not large enough" ) );
+                MBEDTLS_SSL_DEBUG_MSG( 1, ( "Buffer provided for encrypted record not large enough 5" ) );
                 return( MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL );
             }
 
@@ -4349,7 +4359,7 @@ int mbedtls_ssl_write_record( mbedtls_ssl_context *ssl, uint8_t force_flush )
     size_t len = ssl->out_msglen;
     uint8_t flush = force_flush;
 
-    MBEDTLS_SSL_DEBUG_MSG( 2, ( "=> write record" ) );
+    MBEDTLS_SSL_DEBUG_MSG( 1, ( "=> write record ssl->out_msg_len=%zu", ssl->out_msglen ) );
 
 #if defined(MBEDTLS_ZLIB_SUPPORT)
     if( ssl->transform_out != NULL &&
@@ -11473,6 +11483,11 @@ int mbedtls_ssl_context_save( mbedtls_ssl_context *ssl,
     }
 #endif
 
+    mbedtls_ssl_transform *transform = ssl->transform;
+
+
+    MBEDTLS_SSL_DEBUG_MSG( 1, ( "mbedtls_ssl_context_save transform->fixed_ivlen=%d, transform->iv_len=%d", transform->fixed_ivlen, transform->ivlen) );
+
     /*
      * Version and format identifier
      */
@@ -11693,6 +11708,8 @@ static int ssl_context_load( mbedtls_ssl_context *ssl,
     {
         return( MBEDTLS_ERR_SSL_BAD_INPUT_DATA );
     }
+
+    MBEDTLS_SSL_DEBUG_MSG( 1, ( "> mbedtls_ssl_context_load") );
 
     MBEDTLS_SSL_DEBUG_BUF( 4, "context to load", buf, len );
 
