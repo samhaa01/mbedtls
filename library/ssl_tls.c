@@ -11941,6 +11941,8 @@ static int ssl_context_load( mbedtls_ssl_context *ssl,
     if( p != end )
         return( MBEDTLS_ERR_SSL_BAD_INPUT_DATA );
 
+    ssl_update_out_pointers( ssl, ssl->transform );
+
     return( 0 );
 }
 
