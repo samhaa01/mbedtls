@@ -12000,7 +12000,9 @@ void mbedtls_ssl_free( mbedtls_ssl_context *ssl )
     if( ssl == NULL )
         return;
 
+#if defined(MBEDTLS_DEBUG_MESSAGES_ENABLED_IN_MBEDTLS_SSL_FREE)
     MBEDTLS_SSL_DEBUG_MSG( 2, ( "=> free" ) );
+#endif
 
     if( ssl->out_buf != NULL )
     {
@@ -12056,7 +12058,9 @@ void mbedtls_ssl_free( mbedtls_ssl_context *ssl )
 #if defined(MBEDTLS_SSL_HW_RECORD_ACCEL)
     if( mbedtls_ssl_hw_record_finish != NULL )
     {
+#if defined(MBEDTLS_DEBUG_MESSAGES_ENABLED_IN_MBEDTLS_SSL_FREE)
         MBEDTLS_SSL_DEBUG_MSG( 2, ( "going for mbedtls_ssl_hw_record_finish()" ) );
+#endif
         mbedtls_ssl_hw_record_finish( ssl );
     }
 #endif
@@ -12065,7 +12069,9 @@ void mbedtls_ssl_free( mbedtls_ssl_context *ssl )
     mbedtls_free( ssl->cli_id );
 #endif
 
+#if defined(MBEDTLS_DEBUG_MESSAGES_ENABLED_IN_MBEDTLS_SSL_FREE)
     MBEDTLS_SSL_DEBUG_MSG( 2, ( "<= free" ) );
+#endif
 
     /* Actually clear after last debug message */
     mbedtls_platform_zeroize( ssl, sizeof( mbedtls_ssl_context ) );

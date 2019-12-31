@@ -3592,6 +3592,22 @@
  * Allow user to override any previous default.
  *
  */
+
+/**
+ *
+ * mbedtls_ssl_free is called when TLS context is no longer used.
+ * The debug messages in mbedtls_ssl_free refer to TLS configuration.
+ * The problem could be that if TLS context is used from Java, it can't be
+ * easily controlled that TLS configuration is freed after TLS context.
+ * This is due to Java garbage collection algorithm which could sweep and
+ * dispose the detached objects in any order. Therefore, when used from
+ * Java, mbedtls_ssl_free could refer to TLS configuration that has been
+ * already freed. Disabling log messages prevents this possibility.
+ * Note that printing debug messsages from TLS context refers to f_dbg file
+ * in TLS configuration.
+ */
+#define MBEDTLS_DEBUG_MESSAGES_ENABLED_IN_MBEDTLS_SSL_FREE
+
 #if defined(MBEDTLS_USER_CONFIG_FILE)
 #include MBEDTLS_USER_CONFIG_FILE
 #endif
